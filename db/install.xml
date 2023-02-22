@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <XMLDB PATH="mod/assign/submission/reflection/db" VERSION="20230223" COMMENT="XMLDB file for Moodle mod/assign/submission/reflection">
+    <TABLES>
+      <TABLE NAME="assignsubmission_reflection" COMMENT="Default comment for assignsubmission_reflection, please edit me">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+        </KEYS>
+      </TABLE>
+    </TABLES>
+  </XMLDB>
