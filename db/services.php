@@ -15,19 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'assignsubmission_reflection', language 'en'
+ * Services
  *
- * @package   assignsubmission_reflection
- * @copyright 2023 Veronica Bermegui
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    assignsubmission_reflection
+ * @copyright  2023 Veronica Bermegui
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Reflection submissions';
-$string['reflection'] = 'Reflection';
-$string['allowonlinetextsubmissions'] = 'Enabled';
-$string['default'] = 'Enabled by default';
-$string['default_help'] = 'If set, this submission method will be enabled by default for all new assignments.';
-$string['enabled'] = 'Reflection submissions';
-$string['enabled_help'] = 'If enabled, students are able to write a reflection in their submission.';
-$string['saveref'] = 'Save reflection';
+defined('MOODLE_INTERNAL') || die();
+
+$functions = [
+    'assignsubmission_reflection_reflection_form' => array(
+            'classname' => 'assignsubmission_reflection_external',
+            'methodname' => 'submit_reflection_form',
+            'classpath' => 'mod/assign/submission/reflection/externallib.php',
+            'description' => 'Saves a student reflection',
+            'ajax' => true,
+            'type' => 'write',
+            // 'capabilities' => 'moodle/course:managegroups',
+        )
+];
 
