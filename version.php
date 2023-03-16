@@ -27,3 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->version   = 2023022200;
 $plugin->requires  = 2022041200;
 $plugin->component = 'assignsubmission_reflection';
+$plugin->dependencies = array(
+    'theme_boostcgs2' => ANY_VERSION,   // The boostcg2 theme takes care of where the texteditor is displayed.
+);

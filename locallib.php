@@ -57,6 +57,11 @@ class assign_submission_reflection extends assign_submission_plugin {
                        'assignsubmission_reflection_enabled',
                        'notchecked');
 
+
+        $reflectionbeforegrading = $this->assignsubmission_reflection_get_setting();
+        error_log(print_r("reflectionbeforegradingison", true));
+        error_log(print_r($reflectionbeforegrading, true));
+        $mform->setDefault('assignsubmission_reflection_before_grading_enabled', $reflectionbeforegrading);
     }
 
     /**
@@ -78,12 +83,22 @@ class assign_submission_reflection extends assign_submission_plugin {
       */
     public function save_settings(stdClass $data) {
         global $DB;
-        error_log(print_r($data, true));
+
         $dataobject = new stdClass();
         $dataobject->enabledbgrading = isset($data->assignsubmission_reflection_before_grading_enabled) ? $data->assignsubmission_reflection_before_grading_enabled : 0;
         $dataobject->assignment = $this->assignment->get_instance()->id;
+        $table = 'assignsubmission_ref_setting';
 
-        $DB->insert_record('assignsubmission_ref_setting', $dataobject);
+        if ($r = $DB->get_record($table, ['assignment' => $this->assignment->get_instance()->id])) {
+            $dataobject->id = $r->id;
+            $DB->update_record($table, $dataobject);
+            $id = $r->id;
+        } else {
+            $id = $DB->insert_record($table, $dataobject);
+        }
+
+        $this->set_config('reflectionbeforegrading', $id);
+        $this->set_config('reflectionenabled', 1);
 
         return true;
     }
@@ -154,7 +169,7 @@ class assign_submission_reflection extends assign_submission_plugin {
     /**
      * Get the reflection saved
      */
-    public function assignsubmission_reflection_get_reflection($submission, $assignment) {
+    private function assignsubmission_reflection_get_reflection($submission, $assignment) {
         global $DB;
 
         $r = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission], 'reflectiontxt');
@@ -162,10 +177,8 @@ class assign_submission_reflection extends assign_submission_plugin {
 
     }
 
-    /**
-     * Only display the reflection text editor if the assignmenthas been graded
-     */
-    public function assignsubmission_reflection_is_graded($userid, $assignment) {
+
+    private function assignsubmission_reflection_is_graded($userid, $assignment) {
         global $DB;
 
         $grade = $DB->get_record('assign_grades', ['assignment' => $assignment, 'userid' => $userid], 'grade', IGNORE_MISSING);
@@ -178,11 +191,27 @@ class assign_submission_reflection extends assign_submission_plugin {
 
     }
 
-    public function assignsubmission_reflection_is_enabled() {
+    private function assignsubmission_reflection_is_enabled() {
         global $DB;
-        $setting = $DB->get_record('assignsubmission_ref_setting', ['assignment' =>  $this->assignment->get_instance()->id], 'enabledbgrading');
+
+        $setting = $DB->get_record('assignsubmission_ref_setting', ['assignment' => $this->assignment->get_instance()->id], 'enabledbgrading');
 
         return $setting->enabledbgrading;
     }
+
+    private function assignsubmission_reflection_get_setting() {
+        global $DB;
+
+        $reflectionbeforegrading = $this->get_config('reflectionbeforegrading');
+        $reflectionbeforegradingison = 0;
+
+        if ($reflectionbeforegrading != 0) {
+            $reflectionbeforegradingison = $DB->get_record('assignsubmission_ref_setting', ['id' => $reflectionbeforegrading ], 'enabledbgrading');
+            $reflectionbeforegradingison = $reflectionbeforegradingison->enabledbgrading;
+        }
+
+        return $reflectionbeforegradingison;
+    }
+
 
 }
