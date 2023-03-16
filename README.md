@@ -1,7 +1,7 @@
 # Submission declaration #
 
 A submission type that allows students to reflect on their assessments
-The plugin offers the options to enable de reflection prior the grading of the assessment
+The plugin offers the options to enable the reflection prior the grading of the assessment
 or after
 
 
@@ -19,7 +19,9 @@ In this example the submissions reflection is enabled before grading
 Student view after saving a reflection
 ![](/screenshots/reflectionsubmittedstudentview.jpg)
 
-Teacher view after student savev the reflection
+#### Teacher view ####
+
+Teacher view after student saved the reflection
 ![](/screenshots/reflectionsubmittedteacherview.jpg)
 
 ## Installing via uploaded ZIP file ##
