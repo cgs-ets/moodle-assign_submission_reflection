@@ -32,7 +32,6 @@ $functions = [
             'description' => 'Saves a student reflection',
             'ajax' => true,
             'type' => 'write',
-            // 'capabilities' => 'moodle/course:managegroups',
         )
 ];
 

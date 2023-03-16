@@ -51,7 +51,7 @@ class assignsubmission_reflection_external extends external_api {
      * @return int new group id.
      */
     public static function submit_reflection_form($contextid, $jsonformdata) {
-        global $CFG, $USER;
+        global $CFG, $USER, $DB;
 
         // We always must pass webservice params through validate_parameters.
         $params = self::validate_parameters(self::submit_reflection_form_parameters(),
@@ -67,10 +67,6 @@ class assignsubmission_reflection_external extends external_api {
 
         $data = array();
         parse_str($serialiseddata, $data);
-        error_log(print_r($serialiseddata, true));
-        error_log(print_r($data, true));
-
-        $warnings = array();
 
         $editoroptions = [
             // 'maxfiles' => EDITOR_UNLIMITED_FILES,
@@ -89,19 +85,24 @@ class assignsubmission_reflection_external extends external_api {
         $mform = new reflection_form($data);
 
         $validateddata = $mform->get_data();
-        error_log(print_r("validateddata", true));
-        error_log(print_r($validateddata, true));
+        $dataobject = new stdClass();
+        $dataobject->assignment = $data['assignment'];
+        $dataobject->submission = $data['submission'];
+        $dataobject->reflectiontxt = ($data['reflectiontxt'])['text'];
+        $dataobject->reflectioformat = ($data['reflectiontxt'])['format'];
 
-        if ($validateddata) {
-            // Do the action. --> Save reflection
-           // $groupid = groups_create_group($validateddata, $mform, $editoroptions);
-            $saved = true;
+        if ($dataobject->reflectiontxt == '') {
+            $r = 'EMPTY';
         } else {
-            // Generate a warning.
-            throw new moodle_exception('erroreditgroup', 'group');
+
+            $id = $DB->insert_record('assignsubmission_reflection', $dataobject, true);
+            $r = "FAIL";
+            if ($id) {
+               $r = $dataobject->reflectiontxt;
+            }
         }
 
-        return $saved;
+        return $r;
     }
 
     /**
@@ -111,6 +112,6 @@ class assignsubmission_reflection_external extends external_api {
      * @since Moodle 3.0
      */
     public static function submit_reflection_form_returns() {
-        return new external_value(PARAM_BOOL, 'saved status');
+        return new external_value(PARAM_RAW, 'reflection text submitted');
     }
 }

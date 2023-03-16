@@ -26,10 +26,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// File areas for file submission assignment.
-// define('ASSIGNSUBMISSION_FILE_MAXSUMMARYFILES', 5);
-// define('ASSIGNSUBMISSION_FILE_FILEAREA', 'submission_files');
-
 class assign_submission_reflection extends assign_submission_plugin {
 
     public function get_name() {
@@ -37,7 +33,7 @@ class assign_submission_reflection extends assign_submission_plugin {
     }
 
      /**
-      *  Get the settings for declartions submission plugin.
+      *  Get the settings for reflection submission plugin.
       *
       * @param MoodleQuickForm $mform The form to add elements to
       * @return void
@@ -45,56 +41,23 @@ class assign_submission_reflection extends assign_submission_plugin {
     public function get_settings(MoodleQuickForm $mform) {
         global $CFG, $COURSE;
 
-        // if ($this->assignment->has_instance()) {
-        // $defaultmaxfilesubmissions = $this->get_config('maxfilesubmissions');
-        // $defaultmaxsubmissionsizebytes = $this->get_config('maxsubmissionsizebytes');
-        // $defaultfiletypes = $this->get_config('filetypeslist');
-        // } else {
-        // $defaultmaxfilesubmissions = get_config('assignsubmission_file', 'maxfiles');
-        // $defaultmaxsubmissionsizebytes = get_config('assignsubmission_file', 'maxbytes');
-        // $defaultfiletypes = get_config('assignsubmission_file', 'filetypes');
-        // }
-        // $defaultfiletypes = (string)$defaultfiletypes;
+        $enablereflectiongrp = array();
+        $enablereflectiongrp[] = $mform->createElement('checkbox', 'assignsubmission_reflection_before_grading_enabled',
+                '', '');
+        $mform->addGroup($enablereflectiongrp, 'assignsubmission_reflection_before_grading_group', get_string('reflectionbeforegrading', 'assignsubmission_reflection'), ' ', false);
 
-        // $settings = array();
-        // $options = array();
-        // for ($i = 1; $i <= get_config('assignsubmission_file', 'maxfiles'); $i++) {
-        // $options[$i] = $i;
-        // }
+        $mform->addHelpButton('assignsubmission_reflection_before_grading_group',
+                              'reflectionbeforegrading',
+                              'assignsubmission_reflection');
 
-        // $name = get_string('maxfilessubmission', 'assignsubmission_file');
-        // $mform->addElement('select', 'assignsubmission_file_maxfiles', $name, $options);
-        // $mform->addHelpButton('assignsubmission_file_maxfiles',
-        // 'maxfilessubmission',
-        // 'assignsubmission_file');
-        // $mform->setDefault('assignsubmission_file_maxfiles', $defaultmaxfilesubmissions);
-        // $mform->hideIf('assignsubmission_file_maxfiles', 'assignsubmission_file_enabled', 'notchecked');
+        $mform->hideIf('assignsubmission_reflection_before_grading_group',
+        'assignsubmission_reflection_enabled',
+        'notchecked');
 
-        // $choices = get_max_upload_sizes($CFG->maxbytes,
-        // $COURSE->maxbytes,
-        // get_config('assignsubmission_reflection', 'maxbytes'));
+        $mform->hideIf('assignsubmission_reflection_before_grading_enabled',
+                       'assignsubmission_reflection_enabled',
+                       'notchecked');
 
-        // $settings[] = array('type' => 'select',
-        // 'name' => 'maxsubmissionsizebytes',
-        // 'description' => get_string('maximumsubmissionsize', 'assignsubmission_file'),
-        // 'options '=> $choices,
-        // 'default' => $defaultmaxsubmissionsizebytes);
-
-        // $name = get_string('maximumsubmissionsize', 'assignsubmission_file');
-        // $mform->addElement('select', 'assignsubmission_file_maxsizebytes', $name, $choices);
-        // $mform->addHelpButton('assignsubmission_file_maxsizebytes',
-        // 'maximumsubmissionsize',
-        // 'assignsubmission_file');
-        // $mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
-        // $mform->hideIf('assignsubmission_file_maxsizebytes',
-        // 'assignsubmission_file_enabled',
-        // 'notchecked');
-
-        // $name = get_string('acceptedfiletypes', 'assignsubmission_file');
-        // $mform->addElement('filetypes', 'assignsubmission_file_filetypes', $name);
-        // $mform->addHelpButton('assignsubmission_file_filetypes', 'acceptedfiletypes', 'assignsubmission_file');
-        // $mform->setDefault('assignsubmission_file_filetypes', $defaultfiletypes);
-        // $mform->hideIf('assignsubmission_file_filetypes', 'assignsubmission_file_enabled', 'notchecked');
     }
 
     /**
@@ -107,46 +70,6 @@ class assign_submission_reflection extends assign_submission_plugin {
     }
 
 
-    /**
-     * Get the data to populate setting form template.
-     */
-    private function get_template_context_for_setting_form($new = 1) {
-        global $DB;
-
-        // if ($new) {
-
-        // $d = new stdClass();
-        // $d->declaration_title = get_string('honesty_declaration_title', 'assignsubmission_reflection');
-        // $d->declaration_text  = get_string('honesty_declaration', 'assignsubmission_reflection');
-        // $d->selected = 1;
-        // $d->id = 1;
-        // $d->ordered = 1;
-        // $d->assignment = 0;
-        // $d->firstdeclaration = 1;
-        // $d->nosubmissions = 1;
-        // return $d;
-        // } else {
-        // $ids = $this->get_config('declaration');
-        // $submittedwork = $this->get_assignment_submissions();
-        // $sql = "SELECT *
-        // FROM {assignsubmission_dec_details}
-        // WHERE id IN ($ids) AND deleted = 0";
-
-        // $results = $DB->get_records_sql($sql);
-        // $counter = 0;
-        // foreach ($results as $result) {
-        // if ($counter == 0) {
-        // $result->firstdeclaration = 1;
-        // }
-        // $result->sqlid = $result->id;
-        // $result->id = $result->ordered;
-        // $result->nosubmissions = $submittedwork;
-        // $counter++;
-        // }
-
-        // return array_values($results);
-        // }
-    }
 
      /**
       * Save the settings for declaration submission plugin
@@ -156,303 +79,10 @@ class assign_submission_reflection extends assign_submission_plugin {
       */
     public function save_settings(stdClass $data) {
         global $DB;
-
-        // $declarations = json_decode($data->declarationjson);
-
-        // if (empty($data->declarationjson)) {
-        // $this->set_error("ERROR!");
-        // } else {
-        // $dbids = [];
-        // foreach ($declarations as $declaration) {
-        // if (!isset($declaration->sqlid)) { // It's not in the DB.
-        // $declaration->ordered = $declaration->id;
-        // $declaration->assignment = $this->assignment->get_instance()->id;
-        // unset($declaration->id);
-        // $dbids[] = $DB->insert_record('assignsubmission_dec_details', $declaration, true);
-        // } else {
-        // Update text.
-        // $dbids[] = $declaration->sqlid;
-        // $declaration->id = $declaration->sqlid;
-        // unset($declaration->sqlid);
-        // $DB->update_record('assignsubmission_dec_details', $declaration);
-        // }
-        // }
-        // $dbids = array_unique($dbids);
-        // $dbids = implode(',', $dbids);
-        // $this->set_config('declaration', $dbids);
-        // $this->set_config('declarationenabled', 1);
-
-            return true;
-        // }
-    }
-
-    /**
-     * Add form elements for settings
-     *
-     * @param mixed $submission can be null
-     * @param MoodleQuickForm $mform
-     * @param stdClass $data
-     * @return true if elements were added to the form
-     */
-    public function get_form_elements($submission, MoodleQuickForm $mform, stdClass $data) {
-        global $OUTPUT, $PAGE;
-
-        // list($declarations, $decdetails) = $this->get_template_context_for_student_view(0, $submission);
-
-        // if ($submission) {
-        // $declarationsubmission = $this->get_declaration_submission($submission->id);
-        // if ($declarationsubmission) {
-        // list($declarations, $decdetails) = $this->get_template_context_for_student_view(1, $submission);
-        // $mform->addElement('html', $OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_declaration_student_view', $declarations));
-        // } else {
-        // $mform->addElement('html', $OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_declaration_student_view', $declarations));
-        // }
-
-        // }
-
-        // $mform->addElement('text', 'declarationjson', get_string('declarationjson', 'assignsubmission_reflection')); // Add elements to your form.
-        // $mform->setType('declarationjson', PARAM_RAW);   // Set type of element.
-        // $mform->setDefault('declarationjson', json_encode($decdetails));
-        // $PAGE->requires->js_call_amd('assignsubmission_reflection/assignsubmission_declaration_student_submit', 'init');
-
+        error_log(print_r("SAVE SETTINGS", true));
+        error_log(print_r($data, true));
         return true;
     }
-
-    // private function get_template_context_for_student_view($withsubmission = 0, $submission = null) {
-    // $decdetails = [];
-    // $declarations = $this->get_declaration_assessment();
-
-    // if ($withsubmission == 0) {
-    // foreach ($declarations as $declaration) {
-    // $dec = new stdClass();
-    // $dec->detail = $declaration->id; // In the DB the detail column is the id of mdl_assignsubmission_declaration table. In the student view i need the order
-    // $dec->assignment = $declaration->assignment;
-    // $dec->submission = $submission->id;
-    // $dec->selected = 0;
-    // $dec->notindb = 1;
-    // $declaration->selected = 0; // The one that comes from the DB is the selected when setting the submission.
-    // $decdetails[] = $dec;
-    // }
-
-    // $declarations['declarations'] = array_values($declarations);
-
-    // } else {
-    // Check if there are new declarations added after the first time.
-    // $alldeclarations = $this->get_declaration_assessment();
-    // $declarations = $this->get_declaration_submission($submission->id);
-    // $currentids = array_keys($declarations);
-    // $allids = array_keys($alldeclarations);
-    // $missingids = [];
-
-    // foreach ($allids as $id) {
-    // if (!in_array($id, $currentids)) {
-    // $missingids[] = $id;
-    // }
-    // }
-
-    // foreach ($missingids as $missing) {
-    // $data = clone($declarations[count($declarations)]);
-    // $newdec = $alldeclarations[$missing];
-    // $data->id = $newdec->id;
-    // $data->detail = $newdec->id;
-    // $data->declaration_title = $newdec->declaration_title;
-    // $data->declaration_text = $newdec->declaration_text;
-    // $data->selected = 0;
-    // $data->isnew = 1;
-    // $data->ordered++;
-    // $declarations[$missing] = $data;
-    // }
-
-    // foreach ($declarations as $declaration) {
-    // $dec = new stdClass();
-
-    // if (!isset($declaration->isnew)) {
-    // $dec->detail = $declaration->id;
-    // } else {
-    // $dec->detail = $declaration->id;
-    // $dec->isnew = 1;
-
-    // }
-
-    // $dec->assignment = $declaration->assignment;
-    // $dec->submission = $declaration->id;
-    // $dec->selected = $declaration->selected;
-    // $decdetails[] = $dec;
-    // }
-
-    // $declarations['declarations'] = array_values($declarations);
-    // }
-
-    // return [$declarations, $decdetails];
-
-    // }
-
-     /**
-      * Get declaration submission information from the database
-      *
-      * @param  int $submissionid
-      * @return mixed
-      */
-    // private function get_declaration_submission($submissionid) {
-    // global $DB;
-    // $sql = "SELECT *
-    // FROM mdl_assignsubmission_declaration decl
-    // JOIN mdl_assignsubmission_dec_details det ON decl.detail = det.id
-    // where decl.submission = ? AND det.deleted = ?";
-    // $params = ['submission' => $submissionid, 'deleted' => 0];
-
-    // return $DB->get_records_sql($sql, $params);
-    // }
-
-    /**
-     * Get the declaration details for this assessment.
-     */
-    // private function get_declaration_assessment() {
-    // global $DB;
-    // $sql = "SELECT *
-    // FROM mdl_assignsubmission_dec_details
-    // WHERE assignment = ? AND selected = ? AND deleted = ?";
-    // $params = ['assignment' => $this->assignment->get_instance()->id, 'selected' => 1, 'deleted' => 0];
-
-    // return $DB->get_records_sql($sql, $params);
-    // }
-
-    // private function get_assignment_submissions() {
-    // global $DB;
-    // $sql = "SELECT *
-    // FROM mdl_assignsubmission_declaration
-    // WHERE assignment = ?";
-    // $params = ['assignment' => $this->assignment->get_instance()->id];
-
-    // $result = $DB->get_records_sql($sql, $params);
-
-    // return count($result) > 0;
-    // }
-
-
-    /**
-     * Save data to the database and trigger plagiarism plugin,
-     * if enabled, to scan the uploaded content via events trigger
-     *
-     * @param stdClass $submission
-     * @param stdClass $data
-     * @return bool
-     */
-    // public function save(stdClass $submission, stdClass $data) {
-    // global $USER, $DB;
-    // $declarationsubmission = $this->get_declaration_submission($submission->id);
-
-    // $alldeclarations = $this->get_declaration_assessment();
-    // $params = array(
-    // 'context' => context_module::instance($this->assignment->get_course_module()->id),
-    // 'courseid' => $this->assignment->get_course()->id,
-    // 'objectid' => $submission->id,
-
-    // );
-    // if (!empty($submission->userid) && ($submission->userid != $USER->id)) {
-    // $params['relateduserid'] = $submission->userid;
-    // }
-    // if ($this->assignment->is_blind_marking()) {
-    // $params['anonymous'] = 1;
-    // }
-
-    // $groupname = null;
-    // $groupid = 0;
-    // Get the group name as other fields are not transcribed in the logs and this information is important.
-    // if (empty($submission->userid) && !empty($submission->groupid)) {
-    // $groupname = $DB->get_field('groups', 'name', array('id' => $submission->groupid), MUST_EXIST);
-    // $groupid = $submission->groupid;
-    // } else {
-    // $params['relateduserid'] = $submission->userid;
-    // }
-
-    // Unset the objectid and other field from params for use in submission events.
-    // unset($params['objectid']);
-    // $params['other'] = array(
-    // 'submissionid' => $submission->id,
-    // 'submissionattempt' => $submission->attemptnumber,
-    // 'submissionstatus' => $submission->status,
-    // 'groupid' => $groupid,
-    // 'groupname' => $groupname
-    // );
-    // $updatestatus = true;
-    // if ($declarationsubmission && (count($declarationsubmission) == count($alldeclarations))) {
-    // foreach ($declarationsubmission as $decsub) {
-    // if ($decsub->deleted != 0) {
-    // $decsub->select = $data->declaration_text_cbox;
-    // $params['objectid'] = $decsub->id;
-    // $updatestatus = $DB->update_record('assignsubmission_reflection', $decsub);
-
-    // }
-    // return  $updatestatus;
-    // }
-    // } else {
-    // $submmited = json_decode($data->declarationjson);
-    // $declarationsubmissionids = [];
-    // foreach ($submmited as $sub) {
-    // if (isset($sub->isnew) || isset($sub->notindb)) {
-    // $declarationsubmission = new stdClass();
-    // $declarationsubmission->assignment = $sub->assignment;
-    // $declarationsubmission->submission = $submission->id;
-    // $declarationsubmission->detail = $sub->detail;
-    // $declarationsubmission->checked = $sub->selected;
-    // $declarationsubmissionids[] = $DB->insert_record('assignsubmission_reflection', $declarationsubmission);
-    // }
-    // }
-
-    // $params['objectid'] = implode(',', $declarationsubmissionids);
-
-    // return !empty($declarationsubmissionids);
-    // }
-
-    // }
-
-      /**
-       * No tick is set for this submission
-       *
-       * @param stdClass $submission
-       * @return bool
-       */
-    // public function is_empty(stdClass $submission) {
-
-    // $descriptionsubmission = $this->get_declaration_submission($submission->id);
-    // $selected = 0;
-
-    // foreach ($descriptionsubmission as $submitted) {
-    // if ($submitted->selected) {
-    // $selected++;
-    // }
-    // }
-
-    // return $selected < 0;
-    // }
-      /**
-       * Determine if a submission is empty
-       *
-       * This is distinct from is_empty in that it is intended to be used to
-       * determine if a submission made before saving is empty.
-       *
-       * @param stdClass $data The submission data
-       * @return bool
-       */
-    // public function submission_is_empty(stdClass $data) {
-    // $submitteddeclarations = json_decode($data->declarationjson);
-
-    // $selected = 0;
-    // foreach ($submitteddeclarations as $submitteddec) {
-    // if ($submitteddec->selected == 1) {
-    // $selected++;
-    // }
-    // }
-
-    // if ($selected < count($submitteddeclarations)) {
-    // return true;
-    // }
-    // if ($selected == count($submitteddeclarations)) {
-    // return false;
-    // }
-
-    // }
 
       /**
        * @param stdClass $submission
@@ -465,7 +95,16 @@ class assign_submission_reflection extends assign_submission_plugin {
         $data->contextid = context_module::instance($this->assignment->get_course_module()->id)->id;
         $data->userid = $USER->id; // Student.
         $data->itemid = $submission->id;
-        $o = $this->assignment->get_renderer()->container($OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_reflection', $data), 'reflectioncontainer');
+        $data->assignment  = $this->assignment->get_instance()->id;
+        $reflection = $this->assignsubmission_reflection_get_reflection($data->itemid, $data->assignment);
+
+        $o = get_string( 'availability_message', 'assignsubmission_reflection');
+
+        if (isset($reflection->reflectiontxt)) { // The student submitted the reflection.
+            $o = $reflection->reflectiontxt;
+        } else if ($this->assignsubmission_reflection_is_graded($data->userid, $data->assignment)) { // Only display the texteditor if the assignment has been graded.
+            $o = $this->assignment->get_renderer()->container($OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_reflection', $data), 'reflectioncontainer');
+        }
         return $o;
     }
       /**
@@ -473,29 +112,27 @@ class assign_submission_reflection extends assign_submission_plugin {
        *
        * @return bool
        */
-    // public function delete_instance() {
-    // global $DB;
+    public function delete_instance() {
+         global $DB;
+        $t1 = $DB->delete_records('assignsubmission_reflection', array('assignment' => $this->assignment->get_instance()->id));
+        return true;
+    }
 
-    // Will throw exception on failure.
-    // $t = $DB->delete_records('assignsubmission_dec_details', array('assignment' => $this->assignment->get_instance()->id));
-    // $t1 = $DB->delete_records('assignsubmission_reflection', array('assignment' => $this->assignment->get_instance()->id));
-    // return true;
-    // }
+    /**
+     * Remove a submission.
+     *
+     * @param stdClass $submission The submission
+     * @return boolean
+     */
+    public function remove($submission) {
+        global $DB;
+        $submissionid = $submission ? $submission->id : 0;
+        if ($submissionid) {
+            $DB->delete_records('assignsubmission_reflection', array('submission' => $submissionid));
+        }
+                return true;
 
-      /**
-       * Remove a submission.
-       *
-       * @param stdClass $submission The submission
-       * @return boolean
-       */
-    // public function remove($submission) {
-    // global $DB;
-    // $submissionid = $submission ? $submission->id : 0;
-    // if ($submissionid) {
-    // $DB->delete_records('assignsubmission_reflection', array('submission' => $submissionid));
-    // }
-    // return true;
-    // }
+    }
       /**
        * Return the plugin configs for external functions.
        *
@@ -504,6 +141,30 @@ class assign_submission_reflection extends assign_submission_plugin {
        */
     public function get_config_for_external() {
         return (array) $this->get_config();
+    }
+
+    /**
+     * Get the reflection saved
+     *
+     */
+    public function assignsubmission_reflection_get_reflection($submission, $assignment) {
+        global $DB;
+
+        $r = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission], 'reflectiontxt');
+        return $r;
+
+    }
+
+    /**
+     * Only display the reflection text editor if the assignmenthas been graded
+     */
+    public function assignsubmission_reflection_is_graded($userid, $assignment) {
+        global $DB;
+
+        $grade = $DB->get_record('assign_grades', ['assignment' => $assignment, 'userid' => $userid], 'grade', IGNORE_MISSING);
+
+        return $grade->grade > -1.00000;
+
     }
 
 }

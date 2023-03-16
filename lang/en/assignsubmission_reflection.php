@@ -30,4 +30,9 @@ $string['default_help'] = 'If set, this submission method will be enabled by def
 $string['enabled'] = 'Reflection submissions';
 $string['enabled_help'] = 'If enabled, students are able to write a reflection in their submission.';
 $string['saveref'] = 'Save reflection';
+$string['availability_message'] = 'This section will be available once the assignment has been graded';
+$string['reflectionbeforegrading'] = 'Enable reflection before grading';
+$string['reflectionbeforegrading_help'] = 'If reflection submissions are enabled and this option is checked ' .
+        'the reflection text editor will be displayed in the submission status section before the assignment has been graded.';
+
 

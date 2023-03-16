@@ -3,7 +3,7 @@
     display: none;
 }
 
-#fitem_id_description_editor {
+#fitem_id_reflectiontxt {
     width: 45vw;
     margin: 0 auto;
 }
@@ -14,11 +14,18 @@ div#fitem_id_submitbutton {
 
 
 /* We dont want the label to be displayed */
-#fitem_id_description_editor > div.col-form-label {
+#fitem_id_reflectiontxt > div.col-form-label {
     display: none !important;
 }
 
 #fitem_id_userid,
-#fitem_id_itemid {
+#fitem_id_submission,
+#fitem_id_assignment {
     display: none;
 }
+
+.cgs-reflection-alert {
+    width: 72%;
+    top: 1rem;
+}
+

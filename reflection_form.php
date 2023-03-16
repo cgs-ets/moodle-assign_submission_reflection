@@ -30,14 +30,16 @@ class reflection_form extends moodleform {
 
         $mform =& $this->_form;
 
-        $mform->addElement('editor', 'description_editor', "Reflection");
-        $mform->setType('description_editor', PARAM_RAW);
-        $mform->addRule('description_editor', get_string('required'), 'required', null, 'client');
+        $mform->addElement('editor', 'reflectiontxt', "Reflection");
+        $mform->setType('reflectiontxt', PARAM_RAW);
+        $mform->addRule('reflectiontxt', get_string('required'), 'required', null, 'client');
         $mform->addElement('text', 'userid', 'USER ID');
         $mform->setType('userid', PARAM_RAW);
         $mform->setDefault('userid', $USER->id);
-        $mform->addElement('text', 'itemid', 'ITEM ID');
-        $mform->setType('itemid', PARAM_RAW);
+        $mform->addElement('text', 'submission', 'ITEM ID');
+        $mform->setType('submission', PARAM_RAW);
+        $mform->addElement('text', 'assignment', 'ASSIGNMENT ID');
+        $mform->setType('assignment', PARAM_RAW);
 
         $this->add_action_buttons(false, get_string('saveref', 'assignsubmission_reflection'));
 
