@@ -43,7 +43,6 @@ class reflection_form extends moodleform {
 
         $this->add_action_buttons(false, get_string('saveref', 'assignsubmission_reflection'));
 
-        // $PAGE->requires->js_call_amd('assignsubmission_reflection/reflectionFormControl', 'init');
     }
 
     /**
@@ -83,76 +82,4 @@ class reflection_form extends moodleform {
 
     }
 
-    /**
-     * Form validation
-     *
-     * @param array $data
-     * @param array $files
-     * @return array $errors An array of errors
-     */
-    public function validation($data, $files) {
-        // global $COURSE, $DB, $CFG;
-
-        // $errors = parent::validation($data, $files);
-
-        // $name = trim($data['name']);
-        // if (isset($data['idnumber'])) {
-        // $idnumber = trim($data['idnumber']);
-        // } else {
-        // $idnumber = '';
-        // }
-        // if ($data['id'] and $group = $DB->get_record('groups', array('id'=>$data['id']))) {
-        // if (core_text::strtolower($group->name) != core_text::strtolower($name)) {
-        // if (groups_get_group_by_name($COURSE->id,  $name)) {
-        // $errors['name'] = get_string('groupnameexists', 'group', $name);
-        // }
-        // }
-        // if (!empty($idnumber) && $group->idnumber != $idnumber) {
-        // if (groups_get_group_by_idnumber($COURSE->id, $idnumber)) {
-        // $errors['idnumber']= get_string('idnumbertaken');
-        // }
-        // }
-
-        // if ($data['enrolmentkey'] != '') {
-        // $errmsg = '';
-        // if (!empty($CFG->groupenrolmentkeypolicy) && $group->enrolmentkey !== $data['enrolmentkey']
-        // && !check_password_policy($data['enrolmentkey'], $errmsg)) {
-        // Enforce password policy when the password is changed.
-        // $errors['enrolmentkey'] = $errmsg;
-        // } else {
-        // Prevent twice the same enrolment key in course groups.
-        // $sql = "SELECT id FROM {groups} WHERE id <> :groupid AND courseid = :courseid AND enrolmentkey = :key";
-        // $params = array('groupid' => $data['id'], 'courseid' => $COURSE->id, 'key' => $data['enrolmentkey']);
-        // if ($DB->record_exists_sql($sql, $params)) {
-        // $errors['enrolmentkey'] = get_string('enrolmentkeyalreadyinuse', 'group');
-        // }
-        // }
-        // }
-
-        // } else if (groups_get_group_by_name($COURSE->id, $name)) {
-        // $errors['name'] = get_string('groupnameexists', 'group', $name);
-        // } else if (!empty($idnumber) && groups_get_group_by_idnumber($COURSE->id, $idnumber)) {
-        // $errors['idnumber']= get_string('idnumbertaken');
-        // } else if ($data['enrolmentkey'] != '') {
-        // $errmsg = '';
-        // if (!empty($CFG->groupenrolmentkeypolicy) && !check_password_policy($data['enrolmentkey'], $errmsg)) {
-        // Enforce password policy.
-        // $errors['enrolmentkey'] = $errmsg;
-        // } else if ($DB->record_exists('groups', array('courseid' => $COURSE->id, 'enrolmentkey' => $data['enrolmentkey']))) {
-        // Prevent the same enrolment key from being used multiple times in course groups.
-        // $errors['enrolmentkey'] = get_string('enrolmentkeyalreadyinuse', 'group');
-        // }
-        // }
-
-        // return $errors;
-    }
-
-    // /**
-    // * Get editor options for this form
-    // *
-    // * @return array An array of options
-    // */
-    // function get_editor_options() {
-    // return $this->_customdata['editoroptions'];
-    // }
 }

@@ -49,7 +49,6 @@ function assignsubmission_reflection_output_fragment_reflectionpanel($args) {
     $reflection->courseid = $course->id;
 
     $editoroptions = [
-        // 'maxfiles' => EDITOR_UNLIMITED_FILES,
         'maxbytes' => $course->maxbytes,
         'trust' => false,
         'context' => $context,

@@ -39,7 +39,6 @@ class assign_submission_reflection extends assign_submission_plugin {
       * @return void
       */
     public function get_settings(MoodleQuickForm $mform) {
-        global $CFG, $COURSE;
 
         $enablereflectiongrp = array();
         $enablereflectiongrp[] = $mform->createElement('checkbox', 'assignsubmission_reflection_before_grading_enabled',
@@ -61,7 +60,7 @@ class assign_submission_reflection extends assign_submission_plugin {
     }
 
     /**
-     * The submission comments plugin has no submission component so should not be counted
+     * The submission reflection plugin has no submission component so should not be counted
      * when determining whether to show the edit submission link.
      * @return boolean
      */
@@ -79,8 +78,13 @@ class assign_submission_reflection extends assign_submission_plugin {
       */
     public function save_settings(stdClass $data) {
         global $DB;
-        error_log(print_r("SAVE SETTINGS", true));
         error_log(print_r($data, true));
+        $dataobject = new stdClass();
+        $dataobject->enabledbgrading = isset($data->assignsubmission_reflection_before_grading_enabled) ? $data->assignsubmission_reflection_before_grading_enabled : 0;
+        $dataobject->assignment = $this->assignment->get_instance()->id;
+
+        $DB->insert_record('assignsubmission_ref_setting', $dataobject);
+
         return true;
     }
 
@@ -102,7 +106,8 @@ class assign_submission_reflection extends assign_submission_plugin {
 
         if (isset($reflection->reflectiontxt)) { // The student submitted the reflection.
             $o = $reflection->reflectiontxt;
-        } else if ($this->assignsubmission_reflection_is_graded($data->userid, $data->assignment)) { // Only display the texteditor if the assignment has been graded.
+        } else if ($this->assignsubmission_reflection_is_graded($data->userid, $data->assignment)
+        || $this->assignsubmission_reflection_is_enabled()) {
             $o = $this->assignment->get_renderer()->container($OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_reflection', $data), 'reflectioncontainer');
         }
         return $o;
@@ -113,8 +118,11 @@ class assign_submission_reflection extends assign_submission_plugin {
        * @return bool
        */
     public function delete_instance() {
-         global $DB;
-        $t1 = $DB->delete_records('assignsubmission_reflection', array('assignment' => $this->assignment->get_instance()->id));
+        global $DB;
+
+        $DB->delete_records('assignsubmission_reflection', array('assignment' => $this->assignment->get_instance()->id));
+        $DB->delete_records('assignsubmission_ref_setting', array('assignment' => $this->assignment->get_instance()->id));
+
         return true;
     }
 
@@ -130,22 +138,21 @@ class assign_submission_reflection extends assign_submission_plugin {
         if ($submissionid) {
             $DB->delete_records('assignsubmission_reflection', array('submission' => $submissionid));
         }
-                return true;
+        return true;
 
     }
-      /**
+    /**
        * Return the plugin configs for external functions.
        *
        * @return array the list of settings
        * @since Moodle 3.2
-       */
+    */
     public function get_config_for_external() {
         return (array) $this->get_config();
     }
 
     /**
      * Get the reflection saved
-     *
      */
     public function assignsubmission_reflection_get_reflection($submission, $assignment) {
         global $DB;
@@ -163,8 +170,19 @@ class assign_submission_reflection extends assign_submission_plugin {
 
         $grade = $DB->get_record('assign_grades', ['assignment' => $assignment, 'userid' => $userid], 'grade', IGNORE_MISSING);
 
-        return $grade->grade > -1.00000;
+        if (isset($grade->grade)) {
+            return $grade->grade > -1.00000;
+        }
 
+        return false;
+
+    }
+
+    public function assignsubmission_reflection_is_enabled() {
+        global $DB;
+        $setting = $DB->get_record('assignsubmission_ref_setting', ['assignment' =>  $this->assignment->get_instance()->id], 'enabledbgrading');
+
+        return $setting->enabledbgrading;
     }
 
 }

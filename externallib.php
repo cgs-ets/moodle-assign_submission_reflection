@@ -69,7 +69,6 @@ class assignsubmission_reflection_external extends external_api {
         parse_str($serialiseddata, $data);
 
         $editoroptions = [
-            // 'maxfiles' => EDITOR_UNLIMITED_FILES,
             'maxbytes' => $course->maxbytes,
             'trust' => false,
             'context' => $context,
