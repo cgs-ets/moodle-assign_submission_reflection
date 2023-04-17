@@ -1,0 +1,13 @@
+<div class = 'summary_assignsubmission_reflection view-summary'>
+    {{{reflectiontxt}}}
+</div>
+<a href = '#' id = 'view-reflection' title = "View full"
+    <i class="icon fa fa-plus fa-fw assignsubmission_reflection-non-editable-plus"></i>
+</a>
+
+{{#js}}
+
+    require(['assignsubmission_reflection/reflectionForm'], function(reflectionform) {
+        reflectionform.init(undefined, undefined, true);
+    });
+{{/js}}

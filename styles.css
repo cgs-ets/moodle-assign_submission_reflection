@@ -1,31 +1,57 @@
 /* Hide the textarea from the grading panel */
 #page-mod-assign-grader .assignsubmission_reflection {
-    display: none;
+  display: none;
 }
 
-#fitem_id_reflectiontxt {
-    width: 45vw;
-    margin: 0 auto;
+#fitem_id_reflectiontxt_editor {
+  width: 45vw;
+  margin: 0 auto;
 }
 
 div#fitem_id_submitbutton {
-    margin: 1rem 0;
+  margin: 1rem 0;
 }
 
-
 /* We dont want the label to be displayed */
-#fitem_id_reflectiontxt > div.col-form-label {
-    display: none !important;
+#fitem_id_reflectiontxt_editor > div.col-form-label {
+  display: none !important;
 }
 
 #fitem_id_userid,
+#fitem_id_id,
 #fitem_id_submission,
-#fitem_id_assignment {
+#fitem_id_assignment,
+#fitem_id_context {
     display: none;
 }
 
 .cgs-reflection-alert {
-    width: 72%;
-    top: 1rem;
+  width: 72%;
+  top: 1rem;
 }
 
+/* Truncate the text of the reflectionin the grading table */
+.reflection-form-container.text-truncate,
+.reflection-form-container p > video {
+  width: 20vw;
+}
+
+/* Hide the multimedia in the reflection */
+
+.reflection-form-container img {
+  display: none;
+}
+
+/* Limit the height of the reflection to make it look better.*/
+.summary_assignsubmission_reflection.view-summary .text_to_html {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+}
+.summary_assignsubmission_reflection.view-full .text_to_html {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 0;
+  -webkit-box-orient: vertical;
+}

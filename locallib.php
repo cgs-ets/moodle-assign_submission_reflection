@@ -26,6 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once("lib.php");
+
 class assign_submission_reflection extends assign_submission_plugin {
 
     public function get_name() {
@@ -57,11 +59,33 @@ class assign_submission_reflection extends assign_submission_plugin {
                        'assignsubmission_reflection_enabled',
                        'notchecked');
 
-
         $reflectionbeforegrading = $this->assignsubmission_reflection_get_setting();
-        error_log(print_r("reflectionbeforegradingison", true));
-        error_log(print_r($reflectionbeforegrading, true));
+
         $mform->setDefault('assignsubmission_reflection_before_grading_enabled', $reflectionbeforegrading);
+
+        // Enable editing setting.
+
+        $enableeditreflectiongrp = array();
+        $enableeditreflectiongrp[] = $mform->createElement('checkbox', 'assignsubmission_reflection_editing_grading_enabled',
+                '', '');
+        $mform->addGroup($enableeditreflectiongrp, 'assignsubmission_reflection_editing_grading_group', get_string('reflectioneditinggrading', 'assignsubmission_reflection'), ' ', false);
+
+        $mform->addHelpButton('assignsubmission_reflection_editing_grading_group',
+                              'reflectionbeforegrading',
+                              'assignsubmission_reflection');
+
+        $mform->hideIf('assignsubmission_reflection_editing_grading_group',
+        'assignsubmission_reflection_enabled',
+        'notchecked');
+
+        $mform->hideIf('assignsubmission_reflection_before_grading_enabled',
+                       'assignsubmission_reflection_enabled',
+                       'notchecked');
+
+        $data = $this->assignsubmission_reflection_get_setting();
+        $mform->setDefault('assignsubmission_reflection_before_grading_enabled', $data->enabledbgrading);
+        $mform->setDefault('assignsubmission_reflection_editing_grading_enabled', $data->enableediting);
+
     }
 
     /**
@@ -72,8 +96,6 @@ class assign_submission_reflection extends assign_submission_plugin {
     public function allow_submissions() {
         return false;
     }
-
-
 
      /**
       * Save the settings for declaration submission plugin
@@ -86,6 +108,7 @@ class assign_submission_reflection extends assign_submission_plugin {
 
         $dataobject = new stdClass();
         $dataobject->enabledbgrading = isset($data->assignsubmission_reflection_before_grading_enabled) ? $data->assignsubmission_reflection_before_grading_enabled : 0;
+        $dataobject->enableediting = isset($data->assignsubmission_reflection_editing_grading_enabled) ? $data->assignsubmission_reflection_editing_grading_enabled : 0;
         $dataobject->assignment = $this->assignment->get_instance()->id;
         $table = 'assignsubmission_ref_setting';
 
@@ -98,6 +121,7 @@ class assign_submission_reflection extends assign_submission_plugin {
         }
 
         $this->set_config('reflectionbeforegrading', $id);
+        $this->set_config('enableediting', $dataobject->enableediting);
         $this->set_config('reflectionenabled', 1);
 
         return true;
@@ -109,22 +133,60 @@ class assign_submission_reflection extends assign_submission_plugin {
        * @return string
        */
     public function view_summary(stdClass $submission, & $showviewlink) {
-        global $OUTPUT, $USER;
+        global $OUTPUT, $USER, $COURSE;
+
         $data = new stdClass();
         $data->contextid = context_module::instance($this->assignment->get_course_module()->id)->id;
         $data->userid = $USER->id; // Student.
         $data->itemid = $submission->id;
         $data->assignment  = $this->assignment->get_instance()->id;
+        $data->courseid = $COURSE->id;
+
         $reflection = $this->assignsubmission_reflection_get_reflection($data->itemid, $data->assignment);
 
         $o = get_string( 'availability_message', 'assignsubmission_reflection');
 
-        if (isset($reflection->reflectiontxt)) { // The student submitted the reflection.
-            $o = $reflection->reflectiontxt;
-        } else if ($this->assignsubmission_reflection_is_graded($data->userid, $data->assignment)
-        || $this->assignsubmission_reflection_is_enabled()) {
+        $settings = $this->assignsubmission_reflection_get_setting();
+
+        $data->canedit = $settings->enableediting;
+
+        $data->reflectiontxt = json_encode(['text' => isset($reflection->reflectiontxt)
+                                                            ? $reflection->reflectiontxt
+                                                            : '',
+                                            'format' => 1]);
+        $data->userid = $USER->id; // Student.
+        $data->itemid = $submission->id;
+        $data->assignment  = $this->assignment->get_instance()->id;
+
+        $data->jsondata = http_build_query(['sesskey' => $USER->sesskey,
+                            '_qf__reflection_form' => 1,
+                            'reflectiontxt_editor' => ['text' => isset($reflection->reflectiontxt) ? $reflection->reflectiontxt : '',
+                                                'format' => FORMAT_HTML],
+                            'userid' => $USER->id,
+                            'submission' => $submission->id,
+                            'assignment' => $this->assignment->get_instance()->id,
+                            'context' => $data->contextid,
+                            'id' => isset($reflection->id) ? $reflection->id : null
+                            ]);
+
+        if ($this->assignsubmission_reflection_is_graded($data->userid, $data->assignment)
+            ||( $settings->enabledbgrading && $settings->enableediting)
+            || ($settings->enabledbgrading && !isset($reflection->reflectiontxt))) {
             $o = $this->assignment->get_renderer()->container($OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_reflection', $data), 'reflectioncontainer');
+        } else {
+            $reflection->reflectiontxt = assignsubmission_reflection_format_submitted_reflection($reflection, $reflection->id, $this->assignment->get_context()->id);
+            $d = new stdClass();
+            $o .= html_writer::start_tag('a', ['href' => '#',
+                                                   'id' => 'more',
+                                                   'title' => get_string('showmore', 'assignsubmission_reflection')])
+                                                   . '<i class="icon fa fa-plus fa-fw assignsubmission_reflection-plus"></i>' . html_writer::end_tag('a');
+            $o = $reflection->reflectiontxt;
+
+            $d->reflectiontxt .= $reflection->reflectiontxt;
+
+            $o = $this->assignment->get_renderer()->container($OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_reflection_non_edit', $d));
         }
+
         return $o;
     }
       /**
@@ -156,12 +218,14 @@ class assign_submission_reflection extends assign_submission_plugin {
         return true;
 
     }
+
     /**
-       * Return the plugin configs for external functions.
-       *
-       * @return array the list of settings
-       * @since Moodle 3.2
-    */
+     * Return the plugin configs for external functions.
+     *
+     * @return array the list of settings
+     * @since Moodle 3.2
+     *
+     */
     public function get_config_for_external() {
         return (array) $this->get_config();
     }
@@ -172,9 +236,8 @@ class assign_submission_reflection extends assign_submission_plugin {
     private function assignsubmission_reflection_get_reflection($submission, $assignment) {
         global $DB;
 
-        $r = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission], 'reflectiontxt');
+        $r = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission], '*');
         return $r;
-
     }
 
 
@@ -191,27 +254,34 @@ class assign_submission_reflection extends assign_submission_plugin {
 
     }
 
-    private function assignsubmission_reflection_is_enabled() {
-        global $DB;
-
-        $setting = $DB->get_record('assignsubmission_ref_setting', ['assignment' => $this->assignment->get_instance()->id], 'enabledbgrading');
-
-        return $setting->enabledbgrading;
-    }
-
     private function assignsubmission_reflection_get_setting() {
         global $DB;
 
         $reflectionbeforegrading = $this->get_config('reflectionbeforegrading');
+        $data = new stdClass();
+        $data->enabledbgrading = 0;
+        $data->enableediting = 0;
         $reflectionbeforegradingison = 0;
 
         if ($reflectionbeforegrading != 0) {
             $reflectionbeforegradingison = $DB->get_record('assignsubmission_ref_setting', ['id' => $reflectionbeforegrading ], 'enabledbgrading');
+            $data = $DB->get_record('assignsubmission_ref_setting', ['id' => $reflectionbeforegrading ], '*');
             $reflectionbeforegradingison = $reflectionbeforegradingison->enabledbgrading;
         }
 
-        return $reflectionbeforegradingison;
+        return $data;
     }
 
+    /**
+     * Return a description of external params suitable for uploading an submission reflection from a webservice.
+     *
+     * @return external_description|null
+     */
+    public function assignsubmission_reflection_get_external_parameters() {
+        $editorparams = array('text' => new external_value(PARAM_RAW, 'The text for this reflection.'),
+                              'format' => new external_value(PARAM_INT, 'The format for this reflection'));
+        $editorstructure = new external_single_structure($editorparams, 'Editor structure', VALUE_OPTIONAL);
+        return array('reflectiontxt' => $editorstructure);
+    }
 
 }

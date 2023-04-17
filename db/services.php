@@ -32,6 +32,15 @@ $functions = [
             'description' => 'Saves a student reflection',
             'ajax' => true,
             'type' => 'write',
+    ),
+
+    'assignsubmission_reflection_get_reflection' => array(
+        'classname' => 'assignsubmission_reflection_external',
+        'methodname' => 'get_reflection',
+        'classpath' => 'mod/assign/submission/reflection/externallib.php',
+        'description' => 'Get the student reflection',
+        'ajax' => true,
+        'type' => 'read'
         )
 ];
 

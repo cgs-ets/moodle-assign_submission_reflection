@@ -34,5 +34,9 @@ $string['availability_message'] = 'This section will be available once the assig
 $string['reflectionbeforegrading'] = 'Enable reflection before grading';
 $string['reflectionbeforegrading_help'] = 'If reflection submissions are enabled and this option is checked ' .
         'the reflection text editor will be displayed in the submission status section before the assignment has been graded.';
+$string['reflectioneditinggrading'] = 'Enable student to edit their reflection';
+$string['reflectioneditinggrading_help'] = 'If reflection submissions are enabled and this option is checked ' .
+        'A student will be able to make changes to their reflection.';
+$string['showmore'] = 'View full';
 
 

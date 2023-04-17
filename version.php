@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023022200;
+$plugin->version   = 2023041400;
 $plugin->requires  = 2022041200;
 $plugin->component = 'assignsubmission_reflection';
 $plugin->dependencies = array(

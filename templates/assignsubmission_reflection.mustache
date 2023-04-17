@@ -1,7 +1,7 @@
-<div class = "reflection-form-container" data-contextid = "{{contextid}}" data-userid = "{{userid}}" data-itemid = "{{itemid}}" data-assignment = {{assignment}}></div>
+<div class = "reflection-form-container" data-contextid = "{{contextid}}" data-userid = "{{userid}}" data-itemid = "{{itemid}}" data-assignment = "{{assignment}}" data-editing-enable = "{{canedit}}" data-editing-sesskey = "{{sesskey}}" data-editing-reflectiontxt = "{{reflectiontxt}}"></div>
 {{#js}}
-    // Create the mform reflecion_form.
+    // Create the mform reflection_form.
     require(['assignsubmission_reflection/reflectionForm'], function(reflectionform) {
-        reflectionform.init('[data-action=reflection-form]', {{contextid}});
+        reflectionform.init({{contextid}}, "{{jsondata}}", false);
     });
 {{/js}}

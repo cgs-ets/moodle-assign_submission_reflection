@@ -26,59 +26,36 @@ class reflection_form extends moodleform {
      */
     public function definition () {
         global $USER, $CFG, $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
 
         $mform =& $this->_form;
+        $mform->addElement('editor',
+                           'reflectiontxt_editor',
+                            get_string('reflection', 'assignsubmission_reflection'),
+                            null,
+                            get_editor_options($this->_customdata['context']));
 
-        $mform->addElement('editor', 'reflectiontxt', "Reflection");
-        $mform->setType('reflectiontxt', PARAM_RAW);
-        $mform->addRule('reflectiontxt', get_string('required'), 'required', null, 'client');
+        $mform->setType('reflectiontxt_editor', PARAM_RAW);
+        $mform->addRule('reflectiontxt_editor', get_string('required'), 'required', null, 'client');
+
         $mform->addElement('text', 'userid', 'USER ID');
         $mform->setType('userid', PARAM_RAW);
         $mform->setDefault('userid', $USER->id);
+
+        $mform->addElement('text', 'id', 'ID');
+        $mform->setType('id', PARAM_RAW);
+        $mform->setDefault('id', $this->_customdata['id']);
+
         $mform->addElement('text', 'submission', 'ITEM ID');
         $mform->setType('submission', PARAM_RAW);
+
         $mform->addElement('text', 'assignment', 'ASSIGNMENT ID');
         $mform->setType('assignment', PARAM_RAW);
 
+        $mform->addElement('text', 'context', 'CONTEXT ID');
+        $mform->setType('context', PARAM_RAW);
+        $mform->setDefault('context', $this->_customdata['context']);
+
         $this->add_action_buttons(false, get_string('saveref', 'assignsubmission_reflection'));
-
-    }
-
-    /**
-     * Extend the form definition after the data has been parsed.
-     */
-    public function definition_after_data() {
-        // global $COURSE, $DB, $USER;
-
-        // $mform = $this->_form;
-        // $groupid = $mform->getElementValue('id');
-        // $coursecontext = context_course::instance($COURSE->id);
-
-        // if ($group = $DB->get_record('groups', array('id' => $groupid))) {
-        // If can create group conversation then get if a conversation area exists and it is enabled.
-        // if (\core_message\api::can_create_group_conversation($USER->id, $coursecontext)) {
-        // if (\core_message\api::is_conversation_area_enabled('core_group', 'groups', $groupid, $coursecontext->id)) {
-        // $mform->getElement('enablemessaging')->setSelected(1);
-        // }
-        // }
-        // Print picture.
-        // if (!($pic = print_group_picture($group, $COURSE->id, true, true, false))) {
-        // $pic = get_string('none');
-        // if ($mform->elementExists('deletepicture')) {
-        // $mform->removeElement('deletepicture');
-        // }
-        // }
-        // $imageelement = $mform->getElement('currentpicture');
-        // $imageelement->setValue($pic);
-        // } else {
-        // if ($mform->elementExists('currentpicture')) {
-        // $mform->removeElement('currentpicture');
-        // }
-        // if ($mform->elementExists('deletepicture')) {
-        // $mform->removeElement('deletepicture');
-        // }
-        // }
 
     }
 
