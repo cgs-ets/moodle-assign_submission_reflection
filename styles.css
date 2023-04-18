@@ -46,7 +46,7 @@ div#fitem_id_submitbutton {
 .summary_assignsubmission_reflection.view-summary .text_to_html {
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 6;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
 }
 .summary_assignsubmission_reflection.view-full .text_to_html {

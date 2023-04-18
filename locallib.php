@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once("lib.php");
+require_once($CFG->dirroot . '/mod/assign/submission/reflection/lib.php');
 
 class assign_submission_reflection extends assign_submission_plugin {
 
