@@ -1,13 +1,10 @@
-<div class = 'summary_assignsubmission_reflection view-summary'>
+<span class = 'reflectionsubmissionstatus' hidden >Reflection</span>
+<div class = 'reflection-form-container view-summary' data-contextid = "{{contextid}}" data-userid = "{{userid}}" data-itemid = "{{itemid}}" data-assignment = "{{assignment}}" >
     {{{reflectiontxt}}}
 </div>
-<a href = '#' id = 'view-reflection' title = "View full"
-    <i class="icon fa fa-plus fa-fw assignsubmission_reflection-non-editable-plus"></i>
-</a>
 
 {{#js}}
-
     require(['assignsubmission_reflection/reflectionForm'], function(reflectionform) {
-        reflectionform.init(undefined, undefined, true);
+        reflectionform.init(undefined, undefined, true, {{userid}});
     });
 {{/js}}

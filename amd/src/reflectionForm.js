@@ -11,14 +11,16 @@ const loadForm = (contextid, formData) => {
 
     var params = { jsonformdata: JSON.stringify(formData)};
 
-    // Check where the form will be displayed. If its in the submissions table, we only have to show
-    // the text. If its the student view, then display the form.
+    // Check where the form will be displayed. If its in the submissions table, we only have to show the text.
+    // Same with the grader view.
+    //If its the student view, then display the form.
 
     if (document.getElementById('page-mod-assign-grading')) {
         renderReflectionInSubmissionTable();
 
+    } else if (document.getElementById('page-mod-assign-grader')) {
+        assignsubmission_reflection_get_reflection(document.querySelector('.reflection-form-container'), true);
     } else {
-
         Fragment.loadFragment('assignsubmission_reflection', 'reflectionpanel', contextid, params).done(function (html, js) {
             $(document.querySelector('.reflection-form-container')).fadeOut("fast", function () {
                 Templates.replaceNodeContents($(document.querySelector('.reflection-form-container')), html, js);
@@ -41,24 +43,24 @@ const submitFormAjax = (e) => {
     // We don't want to do a real form submission.
     e.preventDefault();
 
-    var formData = $(document.querySelector('.reflection-form-container form')).serialize();
+    var formData  = $(document.querySelector('.reflection-form-container form')).serialize();
     var contextid = document.querySelector(".reflection-form-container").getAttribute('data-contextid');
-    var canedit = document.querySelector(".reflection-form-container").getAttribute('data-editing-enable');
+    var canedit   = document.querySelector(".reflection-form-container").getAttribute('data-editing-enable');
+    var userid    = document.querySelector(".reflection-form-container").getAttribute('data-userid');
 
     Ajax.call([{
         methodname: 'assignsubmission_reflection_reflection_form',
         args: {
             contextid: contextid,
             jsonformdata: JSON.stringify(formData),
-            canedit: canedit
+            canedit: canedit,
+            userid: userid
         },
         done: function (response) {
-            console.log(response);
             responseReflectionDisplay(response);
         },
         fail: function (reason) {
             console.log(reason);
-
         }
     }]);
 
@@ -112,48 +114,67 @@ const fadeAlert = (alert) => {
 
 const renderReflectionInSubmissionTable = () => {
 
+    // Get the header of reflection. it has a class like header c9.
+    //that c9 matches the cell where the reflection goes.The td class is cell c9
+    const reflectionTh = Array.from(document.querySelector('table thead tr').children).filter(th => {
+        if (th.innerHTML.includes('Reflection')) {
+            return th;
+        }
+
+    });
+
+    let cellNumber = reflectionTh[0].getAttribute('class').split(' ');
+    cellNumber = cellNumber[cellNumber.length - 1];
+
+    const submissionsTableCells = Array.from(document.querySelectorAll('table tbody tr td'));
+
+    submissionsTableCells.forEach(td => {
+        if (td.getAttribute('class').includes(cellNumber)) {
+
+            const container = td.querySelector('.reflection-form-container');
+
+            if (container != null) {
+                assignsubmission_reflection_get_reflection(container);
+            } else {
+                td.innerHTML = '<span class = "reflectionsubmissionstatus">No Reflection</span>'
+            }
+
+        }
+    });
+
+}
+
+const assignsubmission_reflection_get_reflection = (container, fromGraderView = false) => {
+
     if (document.querySelector('.reflection-form-container') == null) {
         return;
     }
     // Add the truncate css class
     $('div.reflection-form-container').addClass('text-truncate');
 
-    const container = document.querySelector('.reflection-form-container');
+    // const container = document.querySelector('.reflection-form-container');
     const submission = container.getAttribute('data-itemid');
     const assignment = container.getAttribute('data-assignment');
     const context = container.getAttribute('data-contextid');
+    const userid = container.getAttribute('data-userid');
 
     Ajax.call([{
         methodname: 'assignsubmission_reflection_get_reflection',
         args: {
             submission: submission,
             assignment: assignment,
-            context:context
+            context: context,
+            userid: userid
         },
         done: function (response) {
 
-            document.querySelector('.reflection-form-container').innerHTML = response;
+            if (fromGraderView) {
+                document.querySelector('.reflection-form-container').innerHTML = response;
+            } else {
+                document.querySelector(`[data-userid="${userid}"]`).innerHTML = response;
+            }
 
-            $('#more').on('click', function(e) {
-                e.stopPropagation();
-                if ($('div.reflection-form-container').hasClass('text-truncate')) {
-
-                    $('div.reflection-form-container').removeClass('text-truncate');
-                    $('.assignsubmission_reflection-plus').removeClass('fa-plus');
-                    $('.assignsubmission_reflection-plus').addClass('fa-minus');
-                    document.getElementById('more').setAttribute('title', 'View summary');
-                    $('div.reflection-form-container').css({
-                        'height': 'auto'
-                    })
-                } else {
-                    document.getElementById('more').setAttribute('title', 'View full');
-
-                    $('div.reflection-form-container').addClass('text-truncate');
-                    $('.assignsubmission_reflection-plus').removeClass('fa-minus');
-                    $('.assignsubmission_reflection-plus').addClass('fa-plus');
-
-                }
-            });
+            controlViewFull(userid);
         },
         fail: function (reason) {
             console.log(reason);
@@ -162,28 +183,39 @@ const renderReflectionInSubmissionTable = () => {
     }]);
 }
 
-export const init = (contextid, formData, nonEditable = false) => {
+const controlViewFull = (userid) => {
+
+    $(`#more-${userid}`).on('click', function(e) {
+        e.stopPropagation();
+
+        if ($(`.reflection-form-container[data-userid = "${userid}"]`).hasClass('text-truncate')) {
+
+            $(`.reflection-form-container[data-userid = "${userid}"]`).removeClass('text-truncate');
+            $(`#more-${userid} > i`).removeClass('fa-plus');
+            $(`#more-${userid} > i`).addClass('fa-minus');
+            document.getElementById(`more-${userid}`).setAttribute('title', 'View summary');
+            $(`.reflection-form-container[data-userid = "${userid}"]`).css({
+                'height': 'auto'
+            })
+        } else {
+            document.getElementById(`more-${userid}`).setAttribute('title', 'View full');
+            $(`.reflection-form-container[data-userid = "${userid}"]`).addClass('text-truncate');
+            $(`#more-${userid} > i`).removeClass('fa-minus');
+            $(`#more-${userid} > i`).addClass('fa-plus');
+
+        }
+    });
+}
+
+export const init = (contextid, formData, nonEditable = false, userid) => {
+    // Check that you are in the gr ader view
+    if (document.getElementById('page-mod-assign-grader') != null
+        && document.querySelector('span.reflectionsubmissionstatus') != null) {
+        document.querySelector('span.reflectionsubmissionstatus').removeAttribute('hidden');
+    }
+
     if (nonEditable) {
-        $('#view-reflection').on('click', function(e) {
-            e.stopPropagation();
-            if ($('.assignsubmission_reflection-non-editable-plus').hasClass('fa-plus')) {
-                $('.assignsubmission_reflection-non-editable-plus').removeClass('fa-plus');
-                $('.assignsubmission_reflection-non-editable-plus').addClass('fa-minus');
-                $('.summary_assignsubmission_reflection').removeClass('view-summary');
-                $('.summary_assignsubmission_reflection').addClass('view-full');
-                document.getElementById('view-reflection').setAttribute('title', 'View summary');
-
-            } else {
-                document.getElementById('view-reflection').setAttribute('title', 'View full');
-
-                $('.assignsubmission_reflection-non-editable-plus').removeClass('fa-minus');
-                $('.assignsubmission_reflection-non-editable-plus').removeClass('view-full');
-                $('.assignsubmission_reflection-non-editable-plus').addClass('fa-plus');
-                $('.summary_assignsubmission_reflection').addClass('view-summary');
-
-
-            }
-        });
+        controlViewFull(userid);
     } else {
         loadForm(contextid, formData);
     }

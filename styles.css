@@ -1,6 +1,5 @@
-/* Hide the textarea from the grading panel */
-#page-mod-assign-grader .assignsubmission_reflection {
-  display: none;
+span.reflectionsubmissionstatus {
+    background-color: #efefef;
 }
 
 #fitem_id_reflectiontxt_editor {
@@ -30,16 +29,22 @@ div#fitem_id_submitbutton {
   top: 1rem;
 }
 
-/* Truncate the text of the reflectionin the grading table */
-.reflection-form-container.text-truncate,
-.reflection-form-container p > video {
-  width: 20vw;
+/* Truncate the text of the reflectionin the grading table .reflection-form-container p > video */
+.reflection-form-container.text-truncate {
+  width: 10vw;
+  /* height: 21vh; */
 }
 
-/* Hide the multimedia in the reflection */
+#page-mod-assign-grader .reflection-form-container.text-truncate {
+    width: 100%;
+}
 
-.reflection-form-container img {
-  display: none;
+/* In the grading table dont display multimedia */
+#page-mod-assign-grading div.reflection-form-container.text-truncate video,
+#page-mod-assign-grading div.reflection-form-container.text-truncate p img,
+#page-mod-assign-grading div.reflection-form-container.text-truncate .mediaplugin,
+#page-mod-assign-grading div.reflection-form-container.text-truncate iframe {
+    display: none;
 }
 
 /* Limit the height of the reflection to make it look better.*/

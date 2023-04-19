@@ -41,6 +41,7 @@ class assignsubmission_reflection_external extends external_api {
                 'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
                 'jsonformdata' => new external_value(PARAM_RAW, 'The data from the reflection form, encoded as a json array'),
                 'canedit' => new external_value(PARAM_INT, 'Is the student allowed to edit the reflection'),
+                'userid' => new external_value(PARAM_INT, 'Student ID'),
             )
         );
     }
@@ -51,12 +52,12 @@ class assignsubmission_reflection_external extends external_api {
      * @param int $contextid The context id for the course.
      * @param string $jsonformdata The data from the form, encoded as a json array.
      */
-    public static function submit_reflection_form($contextid, $jsonformdata, $canedit) {
+    public static function submit_reflection_form($contextid, $jsonformdata, $canedit, $userid) {
         global $CFG, $USER, $DB, $COURSE;
 
         // We always must pass webservice params through validate_parameters.
         $params = self::validate_parameters(self::submit_reflection_form_parameters(),
-                                            ['contextid' => $contextid, 'jsonformdata' => $jsonformdata, 'canedit' => $canedit]);
+                                            ['contextid' => $contextid, 'jsonformdata' => $jsonformdata, 'canedit' => $canedit, 'userid' => $userid]);
 
         $context = context::instance_by_id($params['contextid']);
         // We always must call validate_context in a webservice.
@@ -73,7 +74,7 @@ class assignsubmission_reflection_external extends external_api {
 
         $reflection = new stdClass();
         $reflection->courseid = $course->id;
-        $reflection->userid = $USER->id;
+        $reflection->userid = $userid;
         $reflection->context = $context;
         $id = '';
         $response = new stdClass();
@@ -93,8 +94,8 @@ class assignsubmission_reflection_external extends external_api {
                      ];
         $mform = new reflection_form(null, $customdata, get_editor_options($context), 'post', '', '', true, $data);
         $mform->set_data($formdata);
-
-        if ($record = $DB->get_record('assignsubmission_reflection', ['assignment' => $data['assignment'], 'submission' => $data['submission']], '*')) {
+        $record = $DB->get_record('assignsubmission_reflection', ['assignment' => $data['assignment'], 'submission' => $data['submission'], 'userid' => $userid], '*');
+        if ($record) {
 
             $record->reflectiontxt = ($data['reflectiontxt_editor'])['text'];
             $DB->update_record('assignsubmission_reflection', $record);
@@ -106,7 +107,8 @@ class assignsubmission_reflection_external extends external_api {
                     'assignment' => $formdata->assignment,
                     'submission' => $formdata->submission,
                     'reflectiontxt' => '', // Update later.
-                    'reflectiontxtformat' => FORMAT_HTML
+                    'reflectiontxtformat' => FORMAT_HTML,
+                    'userid' => $reflection->userid
                 ];
 
             $id = $DB->insert_record('assignsubmission_reflection', $ins, true);
@@ -156,7 +158,8 @@ class assignsubmission_reflection_external extends external_api {
             array(
                 'submission' => new external_value(PARAM_INT, 'Submission id (AKA itemid)'),
                 'assignment' => new external_value(PARAM_INT, 'Assignment id'),
-                'context' => new external_value(PARAM_INT, 'The context id for the course')
+                'context' => new external_value(PARAM_INT, 'The context id for the course'),
+                'userid' => new external_value(PARAM_INT, 'The user id'),
             )
         );
     }
@@ -166,20 +169,21 @@ class assignsubmission_reflection_external extends external_api {
      *
      * @param int $submission The submissin id.
      * @param int $assignment The assignment id.
-     * @return int contextid  The context id for the course.
+     * @param int $contextid The context id.
+     * @param bool $fromgrader Is the request coming from the grader view
+     * @return string $text  The reflection content
      */
-    public static function get_reflection($submission, $assignment, $contextid) {
-        global $CFG, $USER, $DB, $COURSE;
+    public static function get_reflection($submission, $assignment, $contextid, $userid) {
+        global $DB;
 
         // We always must pass webservice params through validate_parameters.
         $params = self::validate_parameters(self::get_reflection_parameters(),
-                                            ['submission' => $submission, 'assignment' => $assignment, 'context' => $contextid]);
-
+                                            ['submission' => $submission, 'assignment' => $assignment, 'context' => $contextid, 'userid' => $userid]);
         $context = context::instance_by_id($params['context']);
         // We always must call validate_context in a webservice.
         self::validate_context($context);
-        $data = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission], '*');
 
+        $data = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission, 'userid' => $userid], '*');
         $text = file_rewrite_pluginfile_urls(
             $data->reflectiontxt,
             'pluginfile.php',
@@ -191,9 +195,16 @@ class assignsubmission_reflection_external extends external_api {
 
         if (strlen($data->reflectiontxt) > 0) {
             $text .= html_writer::start_tag('a', ['href' => '#',
-                                                   'id' => 'more',
+                                                   'id' => "more-$userid",
                                                    'title' => get_string('showmore', 'assignsubmission_reflection')])
-                                                   . '<i class="icon fa fa-plus fa-fw assignsubmission_reflection-plus"></i>' . html_writer::end_tag('a');
+                                                   . '<i class="icon fa fa-plus fa-fw assignsubmission_reflection-plus"></i>'
+                                                   . html_writer::end_tag('a');
+
+        } else {
+            $text = html_writer::start_span('reflectionsubmissionstatus')
+            . get_string('noreflection', 'assignsubmission_reflection')
+            . html_writer::end_span();
+
         }
 
         return  $text;

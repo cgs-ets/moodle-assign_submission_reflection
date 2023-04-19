@@ -107,7 +107,7 @@ class assign_submission_reflection extends assign_submission_plugin {
         global $DB;
 
         $dataobject = new stdClass();
-        $dataobject->enabledbgrading = isset($data->assignsubmission_reflection_before_grading_enabled) ? $data->assignsubmission_reflection_before_grading_enabled : 0;
+        $dataobject->enabledbgrading = isset($data->assignsubmission_reflection_before_grading_enabled) ? $data->assignsubmission_reflection_before_grading_enabled : 1;
         $dataobject->enableediting = isset($data->assignsubmission_reflection_editing_grading_enabled) ? $data->assignsubmission_reflection_editing_grading_enabled : 0;
         $dataobject->assignment = $this->assignment->get_instance()->id;
         $table = 'assignsubmission_ref_setting';
@@ -137,7 +137,6 @@ class assign_submission_reflection extends assign_submission_plugin {
 
         $data = new stdClass();
         $data->contextid = context_module::instance($this->assignment->get_course_module()->id)->id;
-        $data->userid = $USER->id; // Student.
         $data->itemid = $submission->id;
         $data->assignment  = $this->assignment->get_instance()->id;
         $data->courseid = $COURSE->id;
@@ -154,7 +153,7 @@ class assign_submission_reflection extends assign_submission_plugin {
                                                             ? $reflection->reflectiontxt
                                                             : '',
                                             'format' => 1]);
-        $data->userid = $USER->id; // Student.
+        $data->userid = $submission->userid; // Student.
         $data->itemid = $submission->id;
         $data->assignment  = $this->assignment->get_instance()->id;
 
@@ -162,7 +161,7 @@ class assign_submission_reflection extends assign_submission_plugin {
                             '_qf__reflection_form' => 1,
                             'reflectiontxt_editor' => ['text' => isset($reflection->reflectiontxt) ? $reflection->reflectiontxt : '',
                                                 'format' => FORMAT_HTML],
-                            'userid' => $USER->id,
+                            'userid' => $data->userid,
                             'submission' => $submission->id,
                             'assignment' => $this->assignment->get_instance()->id,
                             'context' => $data->contextid,
@@ -176,13 +175,11 @@ class assign_submission_reflection extends assign_submission_plugin {
         } else {
             $reflection->reflectiontxt = assignsubmission_reflection_format_submitted_reflection($reflection, $reflection->id, $this->assignment->get_context()->id);
             $d = new stdClass();
-            $o .= html_writer::start_tag('a', ['href' => '#',
-                                                   'id' => 'more',
-                                                   'title' => get_string('showmore', 'assignsubmission_reflection')])
-                                                   . '<i class="icon fa fa-plus fa-fw assignsubmission_reflection-plus"></i>' . html_writer::end_tag('a');
-            $o = $reflection->reflectiontxt;
-
             $d->reflectiontxt .= $reflection->reflectiontxt;
+            $d->userid = $submission->userid;
+            $d->itemid = $submission->id;
+            $d->contextid = $data->contextid;
+            $d->assignment  = $this->assignment->get_instance()->id;
 
             $o = $this->assignment->get_renderer()->container($OUTPUT->render_from_template('assignsubmission_reflection/assignsubmission_reflection_non_edit', $d));
         }
@@ -259,7 +256,7 @@ class assign_submission_reflection extends assign_submission_plugin {
 
         $reflectionbeforegrading = $this->get_config('reflectionbeforegrading');
         $data = new stdClass();
-        $data->enabledbgrading = 0;
+        $data->enabledbgrading = 1;
         $data->enableediting = 0;
         $reflectionbeforegradingison = 0;
 
