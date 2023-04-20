@@ -64,3 +64,9 @@ div#fitem_id_submitbutton {
   -webkit-line-clamp: 0;
   -webkit-box-orient: vertical;
 }
+
+.view-reflection {
+    width: 50%;
+    text-align: center;
+    margin: 0 auto;
+}

@@ -228,12 +228,39 @@ class assign_submission_reflection extends assign_submission_plugin {
     }
 
     /**
+     * Display the saved text content from the editor in the view table
+     *
+     * @param stdClass $submission
+     * @return string
+    */
+    public function view(stdClass $submission) {
+        $reflection = $this->assignsubmission_reflection_get_reflection($submission->id, $submission->assignment, $submission->userid);
+
+        if ($reflection) {
+
+            $contextid = context_module::instance($this->assignment->get_course_module()->id)->id;
+            $reflection = rewrite_assignsubmission_reflection_urls($reflection->reflectiontxt, $reflection->id, $contextid);
+            $o = '';
+            $o .= html_writer::start_div('view-reflection');
+            $o .= $reflection;
+            $o .= html_writer::end_div();
+
+            return $o;
+        }
+
+        return '';
+    }
+
+    /**
      * Get the reflection saved
      */
-    private function assignsubmission_reflection_get_reflection($submission, $assignment) {
+    private function assignsubmission_reflection_get_reflection($submission, $assignment, $userid = 0) {
         global $DB;
-
-        $r = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission], '*');
+        if ($userid != 0) {
+            $r = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission, 'userid' => $userid], '*');
+        } else {
+            $r = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission], '*');
+        }
         return $r;
     }
 
