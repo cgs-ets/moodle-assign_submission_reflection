@@ -1,3 +1,7 @@
+.reflectionsubmission-heading  {
+    color: #005b94;
+}
+
 span.reflectionsubmissionstatus {
     background-color: #efefef;
 }
@@ -32,8 +36,8 @@ div#fitem_id_submitbutton {
 /* Truncate the text of the reflectionin the grading table .reflection-form-container p > video */
 .reflection-form-container.text-truncate {
   width: 10vw;
-  /* height: 21vh; */
 }
+
 
 #page-mod-assign-grader .reflection-form-container.text-truncate {
     width: 100%;
