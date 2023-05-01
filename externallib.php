@@ -129,7 +129,7 @@ class assignsubmission_reflection_external extends external_api {
 
         if (!$canedit) {
             $txt = ($data->reflectiontxt_editor)['text'];
-            $text = rewrite_assignsubmission_reflection_urls($txt, $data->id, $context->id);
+            $text = assignsubmission_reflection_rewrite_urls($txt, $data->id, $context->id);
             unset($serialiseddata);
             $response->result = 'SUCCESS_NON_EDITABLE';
             $response->reflection = $text;
@@ -174,14 +174,17 @@ class assignsubmission_reflection_external extends external_api {
      * @return string $text  The reflection content
      */
     public static function get_reflection($submission, $assignment, $contextid, $userid) {
-        global $DB;
+        global $DB, $USER;
 
         // We always must pass webservice params through validate_parameters.
         $params = self::validate_parameters(self::get_reflection_parameters(),
                                             ['submission' => $submission, 'assignment' => $assignment, 'context' => $contextid, 'userid' => $userid]);
         $context = context::instance_by_id($params['context']);
         // We always must call validate_context in a webservice.
-        self::validate_context($context);
+        // We need to by pass the checking if its coming from the parent view plugin.
+        if (!assignsubmission_reflection_is_mentor($userid)) {
+            self::validate_context($context);
+        }
 
         $data = $DB->get_record('assignsubmission_reflection', ['assignment' => $assignment, 'submission' => $submission, 'userid' => $userid], '*');
         $text = file_rewrite_pluginfile_urls(

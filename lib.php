@@ -167,8 +167,9 @@ function get_editor_options($context) {
  * Convert encoded URLs in $text from the @@PLUGINFILE@@/... form to an actual URL.
  * @param string $text the Text to check
  * @param int $gradeid The grade ID which refers to the id in the gradebook
+ * assignsubmission_reflection_rewrite_urls
  */
-function rewrite_assignsubmission_reflection_urls($text, $id, $contextid) {
+function assignsubmission_reflection_rewrite_urls($text, $id, $contextid) {
 
     return file_rewrite_pluginfile_urls(
         $text,
@@ -186,7 +187,7 @@ function rewrite_assignsubmission_reflection_urls($text, $id, $contextid) {
 function assignsubmission_reflection_format_submitted_reflection($text, $id, $contextid) {
 
     if ($text) {
-        $text = rewrite_assignsubmission_reflection_urls($text->reflectiontxt, $id, $contextid);
+        $text = assignsubmission_reflection_rewrite_urls($text->reflectiontxt, $id, $contextid);
         $text = format_text(
             $text,
             $text->reflectiontxt,
@@ -200,13 +201,37 @@ function assignsubmission_reflection_format_submitted_reflection($text, $id, $co
     return '';
 }
 
-function rewrite_reflection_urls(string $text,  $reflection, $context) {
-    return file_rewrite_pluginfile_urls(
-        $text,
-        'pluginfile.php',
-        $context->id,
-        ASSIGNSUBMISSION_REFLECTION_COMPONENT,
-        ASSIGNSUBMISSION_REFLECTION_FILEAREA,
-        $reflection->id
-    );
+/**
+ * Check if the user that is going to see the activity is
+ * a mentor.
+ */
+function assignsubmission_reflection_is_mentor($userid) {
+    global $DB, $USER;
+    // Parents are allowed to view block in their mentee profiles.
+    $mentorrole = $DB->get_record('role', array('shortname' => 'parent'));
+    $mentor = null;
+
+    if ($mentorrole) {
+
+        $sql = "SELECT ra.*, r.name, r.shortname
+            FROM {role_assignments} ra
+            INNER JOIN {role} r ON ra.roleid = r.id
+            INNER JOIN {user} u ON ra.userid = u.id
+            WHERE ra.userid = ?
+            AND ra.roleid = ?
+            AND ra.contextid IN (SELECT c.id
+                FROM {context} c
+                WHERE c.contextlevel = ?
+                AND c.instanceid = ?)";
+        $params = array(
+            $USER->id,
+            $mentorrole->id,
+            CONTEXT_USER,
+            $userid,
+        );
+
+        $mentor = $DB->get_records_sql($sql, $params);
+    }
+
+    return $mentor;
 }

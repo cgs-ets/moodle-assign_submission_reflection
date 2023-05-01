@@ -239,7 +239,7 @@ class assign_submission_reflection extends assign_submission_plugin {
         if ($reflection) {
 
             $contextid = context_module::instance($this->assignment->get_course_module()->id)->id;
-            $reflection = rewrite_assignsubmission_reflection_urls($reflection->reflectiontxt, $reflection->id, $contextid);
+            $reflection = assignsubmission_reflection_rewrite_urls($reflection->reflectiontxt, $reflection->id, $contextid);
             $o = '';
             $o .= html_writer::start_div('view-reflection');
             $o .= $reflection;

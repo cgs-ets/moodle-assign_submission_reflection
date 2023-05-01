@@ -9,16 +9,17 @@ const loadForm = (contextid, formData) => {
         formData = {}
     }
 
-    var params = { jsonformdata: JSON.stringify(formData)};
+    var params = { jsonformdata: JSON.stringify(formData) };
 
-    // Check where the form will be displayed. If its in the submissions table, we only have to show the text.
-    // Same with the grader view.
+    // Check where the form will be displayed.
+    // If its in the submissions table, parentview or grader view, we only have to show the text.
     //If its the student view, then display the form.
 
     if (document.getElementById('page-mod-assign-grading')) {
         renderReflectionInSubmissionTable();
 
-    } else if (document.getElementById('page-mod-assign-grader')) {
+    } else if (document.getElementById('page-mod-assign-grader')
+        || iniFrame()) {
         assignsubmission_reflection_get_reflection(document.querySelector('.reflection-form-container'), true);
     } else {
         Fragment.loadFragment('assignsubmission_reflection', 'reflectionpanel', contextid, params).done(function (html, js) {
@@ -43,10 +44,10 @@ const submitFormAjax = (e) => {
     // We don't want to do a real form submission.
     e.preventDefault();
 
-    var formData  = $(document.querySelector('.reflection-form-container form')).serialize();
+    var formData = $(document.querySelector('.reflection-form-container form')).serialize();
     var contextid = document.querySelector(".reflection-form-container").getAttribute('data-contextid');
-    var canedit   = document.querySelector(".reflection-form-container").getAttribute('data-editing-enable');
-    var userid    = document.querySelector(".reflection-form-container").getAttribute('data-userid');
+    var canedit = document.querySelector(".reflection-form-container").getAttribute('data-editing-enable');
+    var userid = document.querySelector(".reflection-form-container").getAttribute('data-userid');
 
     Ajax.call([{
         methodname: 'assignsubmission_reflection_reflection_form',
@@ -185,7 +186,7 @@ const assignsubmission_reflection_get_reflection = (container, fromGraderView = 
 
 const controlViewFull = (userid) => {
 
-    $(`#more-${userid}`).on('click', function(e) {
+    $(`#more-${userid}`).on('click', function (e) {
         e.stopPropagation();
 
         if ($(`.reflection-form-container[data-userid = "${userid}"]`).hasClass('text-truncate')) {
@@ -205,6 +206,10 @@ const controlViewFull = (userid) => {
 
         }
     });
+}
+// Check if the view is inside an Iframe, it is, its because we are coming from the parentview
+const iniFrame = () => {
+    return window.self !== window.top;
 }
 
 export const init = (contextid, formData, nonEditable = false, userid) => {
