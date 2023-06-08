@@ -1,4 +1,4 @@
-# Submission declaration #
+# Submission reflection #
 
 A submission type that allows students to reflect on their assessments
 The plugin offers the options to enable the reflection prior the grading of the assessment
