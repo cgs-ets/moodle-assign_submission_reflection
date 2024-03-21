@@ -20,11 +20,11 @@ div#fitem_id_submitbutton {
   display: none !important;
 }
 
-#fitem_id_userid,
-#fitem_id_id,
-#fitem_id_submission,
-#fitem_id_assignment,
-#fitem_id_context {
+.reflection-form-container #fitem_id_userid,
+.reflection-form-container #fitem_id_id,
+.reflection-form-container #fitem_id_submission,
+.reflection-form-container #fitem_id_assignment,
+.reflection-form-container #fitem_id_context {
     display: none;
 }
 
